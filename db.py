@@ -434,14 +434,19 @@ def get_player_history(conn: sqlite3.Connection, world_uuid: str, username: str,
 # each pair's MOST RECENT row (highest id), so a stale/earlier discord_id from
 # before a re-link, if that ever happens, doesn't win over the current one.
 #
-# A common prefix (e.g. "nu") can easily match more distinct (world, username)
-# pairs than `limit` once 17 worlds' full history is searched — ordering
-# currently-ranked players first, before falling back to alphabetical, means
-# the cutoff drops long-inactive historical names rather than someone who's
+# Substring match, not just prefix — "gett" finds "Nuggett" too. A common
+# substring can easily match more distinct (world, username) pairs than
+# `limit` once 17 worlds' full history is searched, more so now than with a
+# prefix-only match, so ordering matters more than ever: usernames that
+# START with the search term sort before ones that merely contain it
+# somewhere in the middle (a search for "nu" should surface "Nuggett" before
+# "Bananurse"), and within each of those groups, currently-ranked players
+# sort before ones only found in old history — so the cutoff drops
+# long-inactive, loosely-matching names first, not someone's exact match
 # sitting on today's leaderboard right now.
 def search_usernames(conn: sqlite3.Connection, term: str, limit: int = 25, world_uuid: str | None = None) -> list[dict]:
     inner_where = ["username LIKE ? ESCAPE '\\'"]
-    inner_params: list = [_like_prefix(term)]
+    inner_params: list = [_like_contains(term)]
     if world_uuid:
         inner_where.append("world_uuid = ?")
         inner_params.append(world_uuid)
@@ -452,7 +457,8 @@ def search_usernames(conn: sqlite3.Connection, term: str, limit: int = 25, world
                (le.poll_id = (
                    SELECT id FROM leaderboard_polls
                    WHERE world_uuid = le.world_uuid ORDER BY polled_at DESC LIMIT 1
-               )) AS is_current
+               )) AS is_current,
+               (le.username LIKE ? ESCAPE '\\') AS starts_with
         FROM leaderboard_entries le
         JOIN worlds w ON w.uuid = le.world_uuid
         WHERE le.id IN (
@@ -460,10 +466,10 @@ def search_usernames(conn: sqlite3.Connection, term: str, limit: int = 25, world
             WHERE {' AND '.join(inner_where)}
             GROUP BY world_uuid, username
         )
-        ORDER BY is_current DESC, le.username COLLATE NOCASE
+        ORDER BY starts_with DESC, is_current DESC, le.username COLLATE NOCASE
         LIMIT ?
         """,
-        [*inner_params, limit],
+        [_like_prefix(term), *inner_params, limit],
     ).fetchall()
     return [
         {
@@ -540,6 +546,15 @@ def find_current_sightings(
     ]
 
 
+def _like_escape(term: str) -> str:
+    return term.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+
+
+# Used only to rank exact-prefix matches first in search_usernames() — the
+# actual WHERE filter is _like_contains(), not this.
 def _like_prefix(term: str) -> str:
-    escaped = term.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
-    return f"{escaped}%"
+    return f"{_like_escape(term)}%"
+
+
+def _like_contains(term: str) -> str:
+    return f"%{_like_escape(term)}%"

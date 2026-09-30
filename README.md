@@ -187,15 +187,18 @@ out but a manual reload.
   where they appeared at all, which can be older than the latest poll if
   they've dropped out) so a stale entry can say so.
 - `GET /api/players/search?term=<text>&world=<uuid>&limit=<n>` — username
-  autocomplete, prefix match, default `limit` 25. `world` is optional — omit
-  it to search every polled world at once (each match reports its own
+  autocomplete, substring match (matches anywhere in the name, not just the
+  start), default `limit` 25. `world` is optional — omit it to search every
+  polled world at once (each match reports its own
   `world`/`world_name`/`map_version`/`discord_id`/`discord_tag`), which is
   what the Watchlists "add player" flow uses so it can add someone without
   asking which world they're on first; pass it to scope the search to one
-  world instead. Results rank players currently on a world's *latest* poll
-  ahead of names only seen historically, so a common prefix (searched across
-  17 worlds' full history) doesn't bury someone who's actively on the
-  leaderboard today under long-inactive matches.
+  world instead. Results are ordered so usernames *starting with* the search
+  term come before ones that merely contain it, and within each of those,
+  players currently on a world's *latest* poll come before names only seen
+  historically — a broad substring search across 17 worlds' full history can
+  turn up a lot of loose matches, and this keeps the closest/most-relevant
+  one from getting buried under them.
 - `GET /api/players/locate?discord_id=<id>&discord_tag=<tag>&exclude_world=<uuid>` —
   every world where that identity currently sits in the top-N (at least one
   of `discord_id`/`discord_tag` required, both may be passed; `discord_id`
