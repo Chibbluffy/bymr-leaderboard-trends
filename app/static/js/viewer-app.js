@@ -428,7 +428,7 @@ export class ViewerApp {
     tr.innerHTML = `
       <td>${row.rank_now !== null ? `#${row.rank_now}` : droppedOut ? `<span class="tag">Dropped out</span>` : "—"}</td>
       <td class="${rankDelta.cls}">${rankDelta.text}</td>
-      <td>
+      <td class="col-left">
         <div class="player-cell">
           <img class="player-avatar" src="${escapeHtml(row.pic_square || AVATAR_FALLBACK)}" alt="" loading="lazy">
           <span class="player-name">${escapeHtml(row.username)}</span>
@@ -634,8 +634,8 @@ export class ViewerApp {
 
     if (error || !deltas) {
       tr.innerHTML = `
-        <td><div class="player-cell"><span class="player-name">${escapeHtml(player.username)}</span></div></td>
-        <td>${escapeHtml(this.getWorldName(player.world, player.worldName))}</td>
+        <td class="col-left"><div class="player-cell"><span class="player-name">${escapeHtml(player.username)}</span></div></td>
+        <td class="col-left">${escapeHtml(this.getWorldName(player.world, player.worldName))}</td>
         <td colspan="7" class="muted">${escapeHtml(error || "No data.")}</td>
       `;
       const removeTd = document.createElement("td");
@@ -669,7 +669,7 @@ export class ViewerApp {
     }
 
     tr.innerHTML = `
-      <td>
+      <td class="col-left">
         <div class="player-cell">
           <img class="player-avatar" src="${escapeHtml(deltas.pic_square || AVATAR_FALLBACK)}" alt="" loading="lazy">
           <div>
@@ -679,14 +679,14 @@ export class ViewerApp {
           </div>
         </div>
       </td>
-      <td>${escapeHtml(this.getWorldName(player.world, player.worldName))}</td>
+      <td class="col-left">${escapeHtml(this.getWorldName(player.world, player.worldName))}</td>
       <td>${deltas.is_current && deltas.rank_now !== null ? `#${deltas.rank_now}` : "—"}</td>
       <td class="${rankDelta.cls}">${rankDelta.text}</td>
       <td>${deltas.is_current ? formatNumber(deltas.outpost_count_now) : "—"}</td>
       <td class="${outpostsDelta.cls}">${outpostsDelta.text}</td>
       <td>${deltas.is_current ? formatNumber(deltas.stronghold_count_now) : "—"}</td>
       <td class="${strongholdsDelta.cls}">${strongholdsDelta.text}</td>
-      <td>
+      <td class="col-left">
         <div class="trend-cell">
           <canvas class="sparkline"></canvas>
           <button type="button" class="icon-button" data-history-player-id="${escapeHtml(player.id)}" aria-label="View history" title="View full history">▤</button>

@@ -309,7 +309,14 @@ input:disabled {
 }
 
 table.data-table {
-  width: 100%;
+  /* auto, not 100% — with few/narrow columns, a 100%-wide table on a wide
+     desktop panel spread columns out with large, hard-to-read gaps between
+     them. Sizing to content keeps it compact and readable on desktop, and
+     doesn't change the mobile story at all: .table-wrap's overflow-x
+     already handles a table wider than the viewport either way, since
+     nowrap cells were already forcing that regardless of this width. */
+  width: auto;
+  max-width: 100%;
   border-collapse: collapse;
   font-size: 0.85rem;
 }
@@ -331,6 +338,19 @@ table.data-table {
 
 .data-table th:first-child,
 .data-table td:first-child {
+  text-align: left;
+}
+
+/* Name/label columns (Player, World, Trend) read better left-aligned, same
+   as the always-left-aligned first column — and for any column whose cell
+   content is a flex box (.player-cell, .trend-cell), this is required, not
+   just stylistic: text-align on the <td> has no effect on a flex child's
+   own position (that's controlled by the flex container's justify-content,
+   which already defaults to flex-start/left), so a right-aligned header
+   over left-rendered flex content never lined up — this is what actually
+   fixes that. */
+.data-table th.col-left,
+.data-table td.col-left {
   text-align: left;
 }
 
