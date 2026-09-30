@@ -1,0 +1,24 @@
+[Unit]
+Description=BYM Leaderboard Trends - server (static files + read-only JSON API)
+After=network-online.target bymr-leaderboard-poller.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/bymr-leaderboard-trends
+EnvironmentFile=-/home/ubuntu/bymr-leaderboard-trends/.env
+ExecStart=/usr/bin/python3 /home/ubuntu/bymr-leaderboard-trends/server.py
+Restart=on-failure
+RestartSec=10
+
+# Never touches the outside BYM API at all — read-only against the local
+# SQLite DB and static files, so this one can be locked down harder than
+# the poller.
+NoNewPrivileges=true
+ProtectSystem=full
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

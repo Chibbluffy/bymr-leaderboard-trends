@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <title>BYM Leaderboard Trends</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <div id="app">
+      <header class="top-bar panel">
+        <div class="top-bar-brand"><strong>BYM</strong> Leaderboard Trends</div>
+        <div class="tabs">
+          <button id="tab-leaderboard-button" class="tab-button active" type="button" data-tab="leaderboard">Leaderboard</button>
+          <button id="tab-watchlists-button" class="tab-button" type="button" data-tab="watchlists">Watchlists</button>
+        </div>
+        <div class="top-bar-spacer"></div>
+      </header>
+
+      <!-- ── Leaderboard tab ──────────────────────────────────────────── -->
+      <section id="leaderboard-tab" class="tab-panel">
+        <div class="controls-row panel controls-row-tabs">
+          <div class="control-field">
+            <label>Map Room</label>
+            <div id="lb-map-version-tabs" class="pill-group">
+              <button class="pill-button active" type="button" data-map-version="2">MR2</button>
+              <button class="pill-button" type="button" data-map-version="3">MR3</button>
+            </div>
+          </div>
+          <div class="control-field control-field-grow">
+            <label>World</label>
+            <div id="lb-world-tabs" class="tab-strip">
+              <span class="muted">Loading worlds…</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="controls-row panel">
+          <div class="control-field">
+            <label>Change over</label>
+            <div id="lb-range-pills" class="pill-group">
+              <button class="pill-button" type="button" data-days="1">24h</button>
+              <button class="pill-button active" type="button" data-days="7">7d</button>
+              <button class="pill-button" type="button" data-days="30">30d</button>
+              <button class="pill-button" type="button" data-days="90">90d</button>
+            </div>
+          </div>
+          <div class="control-field">
+            <label for="lb-name-filter">Player</label>
+            <input id="lb-name-filter" type="search" placeholder="Filter by name…" autocomplete="off" spellcheck="false">
+          </div>
+          <div class="control-field">
+            <label for="lb-min-outposts">Min outposts</label>
+            <input id="lb-min-outposts" type="number" min="0" inputmode="numeric" placeholder="0">
+          </div>
+          <div class="control-field">
+            <label for="lb-max-outposts">Max outposts</label>
+            <input id="lb-max-outposts" type="number" min="0" inputmode="numeric" placeholder="Any">
+          </div>
+          <div class="control-spacer"></div>
+          <p id="lb-status" class="control-status"></p>
+        </div>
+
+        <div class="table-wrap panel">
+          <table id="lb-table" class="data-table">
+            <thead>
+              <tr>
+                <th data-sort="rank_now">Rank</th>
+                <th data-sort="delta_rank">Δ Rank</th>
+                <th data-sort="username">Player</th>
+                <th data-sort="outpost_count_now">Outposts</th>
+                <th data-sort="delta_outposts">Δ Outposts</th>
+                <th id="lb-th-strongholds" data-sort="stronghold_count_now" hidden>Strongholds</th>
+                <th id="lb-th-delta-strongholds" data-sort="delta_strongholds" hidden>Δ Strongholds</th>
+              </tr>
+            </thead>
+            <tbody id="lb-tbody"></tbody>
+          </table>
+          <p id="lb-empty" class="empty-state" hidden>No data yet — the poller hasn't recorded this world.</p>
+        </div>
+      </section>
+
+      <!-- ── Watchlists tab ───────────────────────────────────────────── -->
+      <section id="watchlists-tab" class="tab-panel" hidden>
+        <div class="watchlists-layout">
+          <div class="watchlist-rail panel">
+            <div class="watchlist-rail-header">
+              <p class="eyebrow">Watchlists</p>
+            </div>
+            <div id="watchlist-list" class="watchlist-list"></div>
+            <div class="watchlist-rail-footer">
+              <button id="watchlist-new-button" class="secondary-button" type="button">+ New list</button>
+              <button id="watchlist-import-button" class="secondary-button" type="button">Import…</button>
+              <button id="watchlist-export-button" class="secondary-button" type="button">Export…</button>
+            </div>
+          </div>
+
+          <div class="watchlist-main">
+            <div class="watchlist-main-header panel">
+              <h2 id="watchlist-title">No list selected</h2>
+              <div class="control-field">
+                <label>Change over</label>
+                <div id="wl-range-pills" class="pill-group">
+                  <button class="pill-button" type="button" data-days="1">24h</button>
+                  <button class="pill-button active" type="button" data-days="7">7d</button>
+                  <button class="pill-button" type="button" data-days="30">30d</button>
+                  <button class="pill-button" type="button" data-days="90">90d</button>
+                </div>
+              </div>
+              <button id="watchlist-rename-button" class="secondary-button" type="button">Rename</button>
+              <button id="watchlist-delete-button" class="secondary-button danger" type="button">Delete list</button>
+            </div>
+
+            <div class="watchlist-add-row panel">
+              <div class="watchlist-add-inputs">
+                <div class="control-field search-shell control-field-grow">
+                  <label for="wl-add-name-input">Player (any world)</label>
+                  <input id="wl-add-name-input" type="search" placeholder="Type a player name…" autocomplete="off" spellcheck="false">
+                  <div id="wl-add-results" class="search-results" hidden></div>
+                </div>
+                <button id="wl-add-button" class="primary-button" type="button" disabled>Add</button>
+              </div>
+              <p id="wl-add-picked-note" class="last-seen-note" hidden></p>
+            </div>
+
+            <div class="table-wrap panel">
+              <table id="wl-table" class="data-table">
+                <thead>
+                  <tr>
+                    <th data-sort="username">Player</th>
+                    <th>World</th>
+                    <th data-sort="rank_now">Rank</th>
+                    <th data-sort="delta_rank">Δ Rank</th>
+                    <th data-sort="outpost_count_now">Outposts</th>
+                    <th data-sort="delta_outposts">Δ Outposts</th>
+                    <th data-sort="stronghold_count_now">Strongholds</th>
+                    <th data-sort="delta_strongholds">Δ Strongholds</th>
+                    <th>Trend</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="wl-tbody"></tbody>
+              </table>
+              <p id="wl-empty" class="empty-state" hidden>No players in this list yet — add one above.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <p class="app-footer">Leaderboard data is public, polled periodically from the BYM server. No login, no accounts — watchlists are saved only in this browser.</p>
+    </div>
+
+    <!-- New list modal -->
+    <div id="new-list-modal" class="modal-overlay" hidden>
+      <div class="panel modal-panel">
+        <div class="modal-header">
+          <h3>New watchlist</h3>
+          <button id="new-list-close-button" class="icon-button" type="button" aria-label="Close">×</button>
+        </div>
+        <div class="control-field">
+          <label for="new-list-name-input">Name</label>
+          <input id="new-list-name-input" type="text" placeholder="e.g. Alliance members" autocomplete="off">
+        </div>
+        <div class="modal-actions">
+          <button id="new-list-create-button" class="primary-button" type="button">Create</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rename list modal -->
+    <div id="rename-list-modal" class="modal-overlay" hidden>
+      <div class="panel modal-panel">
+        <div class="modal-header">
+          <h3>Rename watchlist</h3>
+          <button id="rename-list-close-button" class="icon-button" type="button" aria-label="Close">×</button>
+        </div>
+        <div class="control-field">
+          <label for="rename-list-name-input">Name</label>
+          <input id="rename-list-name-input" type="text" autocomplete="off">
+        </div>
+        <div class="modal-actions">
+          <button id="rename-list-save-button" class="primary-button" type="button">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Import/export modal -->
+    <div id="io-modal" class="modal-overlay" hidden>
+      <div class="panel modal-panel">
+        <div class="modal-header">
+          <h3 id="io-modal-title">Export watchlists</h3>
+          <button id="io-modal-close-button" class="icon-button" type="button" aria-label="Close">×</button>
+        </div>
+        <textarea id="io-modal-textarea" spellcheck="false"></textarea>
+        <p id="io-modal-status" class="modal-status muted"></p>
+        <div class="modal-actions">
+          <button id="io-modal-copy-button" class="secondary-button" type="button" hidden>Copy</button>
+          <button id="io-modal-import-button" class="primary-button" type="button" hidden>Import</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Player history modal — full poll-by-poll table -->
+    <div id="history-modal" class="modal-overlay" hidden>
+      <div class="panel modal-panel history-modal-panel">
+        <div class="modal-header">
+          <h3 id="history-modal-title">History</h3>
+          <button id="history-modal-close-button" class="icon-button" type="button" aria-label="Close">×</button>
+        </div>
+        <div id="history-moves" class="history-moves" hidden></div>
+        <div class="control-field">
+          <label>Range</label>
+          <div id="history-range-pills" class="pill-group">
+            <button class="pill-button" type="button" data-days="7">7d</button>
+            <button class="pill-button active" type="button" data-days="30">30d</button>
+            <button class="pill-button" type="button" data-days="90">90d</button>
+          </div>
+        </div>
+        <div class="table-wrap history-table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Polled at</th>
+                <th>Rank</th>
+                <th>Outposts</th>
+                <th>Δ</th>
+                <th>Strongholds</th>
+                <th>Δ</th>
+              </tr>
+            </thead>
+            <tbody id="history-tbody"></tbody>
+          </table>
+          <p id="history-empty" class="empty-state" hidden></p>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,758 @@
+:root {
+  color-scheme: dark;
+  --bg: #101418;
+  --panel: rgba(24, 30, 37, 0.92);
+  --panel-border: rgba(140, 180, 219, 0.16);
+  --panel-strong: rgba(140, 200, 250, 0.28);
+  --text: #eef3f8;
+  --muted: #a9b6c4;
+  --accent: #6bb6f2;
+  --accent-strong: #91d1ff;
+  --gain: #5fd487;
+  --loss: #ff8c69;
+  --shadow: rgba(0, 0, 0, 0.35);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  background: #0c0f13;
+}
+
+body {
+  font-family: "Trebuchet MS", Verdana, sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(circle at top, rgba(70, 110, 150, 0.35), transparent 45%),
+    linear-gradient(180deg, #182028 0%, #10141a 50%, #0c0f13 100%);
+  min-height: 100vh;
+}
+
+#app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 100vh;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 16px;
+  box-shadow: 0 16px 40px var(--shadow);
+  backdrop-filter: blur(10px);
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+.eyebrow {
+  margin: 0 0 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 11px;
+  color: var(--accent);
+}
+
+.muted {
+  color: var(--muted);
+}
+
+/* ── Top bar ──────────────────────────────────────────────────────────── */
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 18px;
+  flex-wrap: wrap;
+}
+
+.top-bar-brand {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.top-bar-brand strong {
+  color: var(--accent-strong);
+}
+
+.top-bar-spacer {
+  flex: 1;
+}
+
+.tabs {
+  display: flex;
+  gap: 6px;
+}
+
+.tab-button {
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 9px 16px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.tab-button:hover {
+  color: var(--text);
+}
+
+.tab-button.active {
+  background: rgba(107, 182, 242, 0.16);
+  border-color: var(--panel-strong);
+  color: var(--accent-strong);
+}
+
+/* ── Buttons / inputs ─────────────────────────────────────────────────── */
+
+button {
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.primary-button,
+.secondary-button,
+.icon-button {
+  border: 0;
+  border-radius: 10px;
+  font: inherit;
+}
+
+.primary-button {
+  background: linear-gradient(180deg, var(--accent-strong), var(--accent));
+  color: #0c1c28;
+  font-weight: 700;
+  padding: 9px 16px;
+}
+
+.primary-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.secondary-button {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text);
+  padding: 8px 14px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.secondary-button:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.secondary-button.danger {
+  color: var(--loss);
+  border-color: rgba(255, 140, 105, 0.3);
+}
+
+.icon-button {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--muted);
+  font-size: 1rem;
+  border-radius: 8px;
+}
+
+.icon-button:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.14);
+}
+
+select,
+input[type="text"],
+input[type="search"],
+input[type="number"] {
+  background: rgba(0, 0, 0, 0.35);
+  color: var(--text);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font: inherit;
+  font-size: 0.85rem;
+}
+
+select:disabled,
+input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Control rows (shared by both tabs) ──────────────────────────────── */
+
+.controls-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+}
+
+.control-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.control-field label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.control-field-grow {
+  flex: 1;
+  min-width: 200px;
+}
+
+.controls-row-tabs {
+  align-items: flex-start;
+}
+
+/* World picker — a wrapping strip of clickable chips instead of a <select>,
+   so checking several worlds in a row is a single click each, not a
+   dropdown-open-then-click every time. */
+.tab-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tab-chip {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 7px 12px;
+  border-radius: 8px;
+  white-space: nowrap;
+}
+
+.tab-chip:hover {
+  color: var(--text);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.tab-chip.active {
+  background: rgba(107, 182, 242, 0.2);
+  border-color: var(--panel-strong);
+  color: var(--accent-strong);
+}
+
+.pill-group {
+  display: flex;
+  gap: 4px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 3px;
+}
+
+.pill-button {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 8px;
+}
+
+.pill-button.active {
+  background: rgba(107, 182, 242, 0.24);
+  color: var(--accent-strong);
+}
+
+.control-spacer {
+  flex: 1;
+}
+
+.control-status {
+  font-size: 0.78rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* ── Data table ───────────────────────────────────────────────────────── */
+
+.table-wrap {
+  overflow-x: auto;
+  padding: 0 6px 12px;
+}
+
+table.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.data-table th {
+  position: sticky;
+  top: 0;
+  background: rgba(20, 26, 33, 0.96);
+  text-align: right;
+  padding: 10px 12px;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+}
+
+.data-table th:first-child,
+.data-table td:first-child {
+  text-align: left;
+}
+
+.data-table th[data-sort-active] {
+  color: var(--accent-strong);
+}
+
+.data-table th[data-sort-active]::after {
+  content: " " attr(data-sort-dir);
+}
+
+.data-table td {
+  padding: 9px 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.data-table td:first-child {
+  text-align: left;
+}
+
+.data-table tr:hover td {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.player-cell {
+  display: flex;
+  /* flex-start, not center — a watchlist row's name cell can grow several
+     lines taller than the avatar (Stale tag, last-seen note, relocation
+     banner), and centering against that whole block left the avatar
+     floating away from the actual username line it belongs next to. */
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 140px;
+}
+
+.player-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
+  margin-top: 1px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.player-name {
+  /* text-overflow: ellipsis does nothing without white-space: nowrap, and a
+     plain inline <span> has no box to truncate against without its own
+     display + bounded width — without all three, a long username used to
+     just render at full length and push the row (and the whole table)
+     wider instead of ever actually truncating. */
+  display: inline-block;
+  max-width: 200px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+}
+
+.gain {
+  color: var(--gain);
+}
+
+.loss {
+  color: var(--loss);
+}
+
+.neutral {
+  color: var(--muted);
+}
+
+.tag {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(255, 140, 105, 0.16);
+  color: var(--loss);
+  white-space: nowrap;
+}
+
+.empty-state {
+  padding: 32px 18px;
+  text-align: center;
+  color: var(--muted);
+}
+
+/* ── Watchlists tab layout ───────────────────────────────────────────── */
+
+.watchlists-layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+@media (max-width: 760px) {
+  .watchlists-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.watchlist-rail {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.watchlist-rail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.watchlist-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.watchlist-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.85rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.watchlist-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.watchlist-item.active {
+  background: rgba(107, 182, 242, 0.14);
+  border-color: var(--panel-strong);
+  color: var(--accent-strong);
+}
+
+.watchlist-item-count {
+  color: var(--muted);
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+
+.watchlist-rail-footer {
+  margin-top: 8px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.watchlist-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.watchlist-main-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 16px 18px 0;
+}
+
+.watchlist-main-header h2 {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 1.05rem;
+}
+
+.watchlist-add-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0 18px;
+  position: relative;
+  /* .panel's backdrop-filter gives every panel its own stacking context, so
+     the dropdown's z-index alone can't win against a later sibling panel
+     (.table-wrap) painted on top of this whole one — this bumps the entire
+     context above it instead. */
+  z-index: 2;
+}
+
+/* Input + Add button live in their own row, separate from the picked-player
+   note below — the note used to sit inside the same flex row as the button
+   (align-items: flex-end), so the button visibly jumped out of line with
+   the input the moment the note appeared and grew that row's height. */
+.watchlist-add-inputs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.watchlist-add-inputs .control-field {
+  flex: 1;
+  min-width: 140px;
+}
+
+.search-shell {
+  position: relative;
+}
+
+.search-results {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: rgba(18, 22, 28, 0.98);
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  box-shadow: 0 12px 30px var(--shadow);
+  max-height: 320px;
+  overflow-y: auto;
+  z-index: 20;
+}
+
+.search-results[hidden] {
+  display: none !important;
+}
+
+.search-result-item {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.82rem;
+}
+
+.search-result-item:hover,
+.search-result-item.active {
+  background: rgba(107, 182, 242, 0.16);
+}
+
+.trend-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sparkline {
+  display: block;
+  width: 96px;
+  height: 28px;
+}
+
+.last-seen-note {
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+/* ── Modal (import/export, new list, history) ────────────────────────── */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 6, 9, 0.72);
+  display: grid;
+  place-items: center;
+  z-index: 50;
+  padding: 18px;
+}
+
+.modal-overlay[hidden] {
+  display: none !important;
+}
+
+.modal-panel {
+  width: min(480px, 100%);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-panel textarea {
+  width: 100%;
+  min-height: 160px;
+  resize: vertical;
+  background: rgba(0, 0, 0, 0.35);
+  color: var(--text);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  padding: 10px;
+  font: inherit;
+  font-size: 0.8rem;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.modal-status {
+  font-size: 0.8rem;
+  min-height: 1em;
+}
+
+.history-modal-panel {
+  width: min(640px, 100%);
+  max-height: 82vh;
+}
+
+.history-moves {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px;
+  border-radius: 10px;
+  background: rgba(107, 182, 242, 0.08);
+  border: 1px solid rgba(107, 182, 242, 0.2);
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.history-move-row {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.history-table-wrap {
+  overflow-y: auto;
+  max-height: 50vh;
+}
+
+/* ── Mobile ───────────────────────────────────────────────────────────── */
+/* Larger tap targets (Apple/Android guidelines want ~44px) and 16px inputs —
+   iOS Safari zooms in on focus for any input under 16px regardless of the
+   viewport meta tag's user-scalable/maximum-scale settings. */
+@media (max-width: 640px) {
+  #app {
+    padding: 10px;
+    gap: 12px;
+  }
+
+  select,
+  input[type="text"],
+  input[type="search"],
+  input[type="number"] {
+    font-size: 16px;
+    padding: 10px 12px;
+  }
+
+  .tab-button {
+    padding: 11px 14px;
+  }
+
+  .tab-chip,
+  .pill-button {
+    padding: 10px 14px;
+  }
+
+  .icon-button {
+    width: 40px;
+    height: 40px;
+  }
+
+  .secondary-button,
+  .primary-button {
+    padding: 11px 16px;
+  }
+
+  .watchlist-main-header {
+    padding: 14px 14px 0;
+  }
+
+  .watchlist-main-header h2 {
+    flex-basis: 100%;
+  }
+
+  .watchlist-main-header .pill-group,
+  .watchlist-main-header .secondary-button {
+    flex: 1;
+  }
+
+  .watchlist-add-row,
+  .controls-row {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+}
+
+/* ── Footer ───────────────────────────────────────────────────────────── */
+
+.app-footer {
+  margin-top: auto;
+  padding: 10px 4px 4px;
+  font-size: 0.75rem;
+  color: var(--muted);
+  text-align: center;
+}

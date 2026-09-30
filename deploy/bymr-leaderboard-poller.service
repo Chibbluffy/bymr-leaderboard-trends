@@ -1,0 +1,27 @@
+[Unit]
+Description=BYM Leaderboard Trends - poller (keeps data/leaderboard_trends.sqlite3 in sync)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/bymr-leaderboard-trends
+EnvironmentFile=-/home/ubuntu/bymr-leaderboard-trends/.env
+ExecStart=/usr/bin/python3 /home/ubuntu/bymr-leaderboard-trends/poller.py
+Restart=on-failure
+RestartSec=10
+
+# EnvironmentFile is prefixed with "-" (optional) — unlike MR2's poller, this
+# one needs no secret to run; .env only matters if you want to override a
+# default (POLL_INTERVAL_SECONDS, etc.). Same ProtectSystem=full (not
+# =strict) reasoning as MR2: this needs to write data/, which doesn't exist
+# until the first run creates it, and strict mode needs an exact
+# ReadWritePaths= carve-out that's easy to get wrong and silently block
+# every write.
+NoNewPrivileges=true
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target
